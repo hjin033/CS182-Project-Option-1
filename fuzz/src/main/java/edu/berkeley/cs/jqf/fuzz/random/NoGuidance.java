@@ -33,6 +33,7 @@ import java.io.PrintStream;
 import java.util.Random;
 import java.util.function.Consumer;
 
+import edu.berkeley.cs.jqf.instrument.tracing.events.BranchEvent;
 import edu.berkeley.cs.jqf.fuzz.guidance.Guidance;
 import edu.berkeley.cs.jqf.fuzz.guidance.GuidanceException;
 import edu.berkeley.cs.jqf.fuzz.guidance.Result;
@@ -58,6 +59,7 @@ public class NoGuidance implements Guidance {
     private Coverage coverage;
     private static boolean KEEP_GOING_ON_ERROR = true;
 
+
     /**
      * Creates a NoGuidance instance that will run a maximum number
      * of trials.
@@ -78,9 +80,12 @@ public class NoGuidance implements Guidance {
      *
      * @return An infinitely long input stream that generates random numbers
      */
+
+
+
     @Override
     public InputStream getInput() {
-        return Guidance.createInputStream(() -> random.nextInt(256));
+        return Guidance.createInputStream(() -> /*200*/random.nextInt(256));
     }
 
     /**
@@ -91,6 +96,17 @@ public class NoGuidance implements Guidance {
     public boolean hasInput() {
         return keepGoing;
     }
+
+
+    public void handleEvent(TraceEvent e) {
+        if (e instanceof BranchEvent) {
+            BranchEvent b = (BranchEvent) e;
+            System.out.print(e.getIid() + " || ");
+            System.out.println(b.getArm());
+        }
+
+    }
+
 
     /**
      * Handles the result of a fuzz run.
@@ -136,11 +152,35 @@ public class NoGuidance implements Guidance {
      * @param thread the thread whose events to handle
      * @return a callback that does nothing.
      */
+
+    //part 4
+    /*
+    @Override
+    public Consumer<TraceEvent> generateCallBack(Thread thread) {
+        return (event) -> {
+            System.out.println(String.format("Thread %s produced event %s",
+                    thread.getName(), event));
+        };
+    }
+
+    */
+
+    // part 3
+    @Override
+    public Consumer<TraceEvent> generateCallBack(Thread thread) {
+        return (event) -> {
+            if (event instanceof BranchEvent){
+                BranchEvent b = (BranchEvent) event;
+                System.out.println("Event ID: " + event.getIid() + ", branch arm: " + b.getArm());
+            }
+        };
+    }
+    /*
     @Override
     public Consumer<TraceEvent> generateCallBack(Thread thread) {
         return getCoverage()::handleEvent;
     }
-
+    */
     /**
      * Returns a reference to the coverage statistics.
      * @return a reference to the coverage statistics

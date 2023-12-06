@@ -132,6 +132,7 @@ public interface Guidance {
         // Do nothing
     }
 
+
     /**
      * Handles the end of a fuzzing trial.
      *
@@ -188,6 +189,7 @@ public interface Guidance {
      *                    that thread
      */
     Consumer<TraceEvent> generateCallBack(Thread thread);
+
 
     // A utility method to create an input stream given a function that generates bytes when invoked
     static InputStream createInputStream(Supplier<Integer> inputByteSource) {
